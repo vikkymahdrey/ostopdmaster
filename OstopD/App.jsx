@@ -1,13 +1,19 @@
-import React from 'react';
-
-class App extends React.Component {
-   render() {
-      return (
-         <div>
-            Hello World!!!
-         </div>
+class Test extends React.Component{
+        
+    render() {
+    return (
+            
+            <div class="container">
+        </div>
       );
-   }
-}
+     }
+    }
 
-ReactDOM.render(<App />, document.getElementById('ostopd'));
+
+
+    
+
+ReactDOM.render(
+  <Test />,
+  document.getElementById('permAddress')
+);

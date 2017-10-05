@@ -1,9 +1,9 @@
 var config = {
-   entry: './main.js',
+   entry: './app.js',
 	
    output: {
-      path:'/index1',
-      filename: 'index1.html',
+      path:'/',
+      filename: 'index.js',
    },
 	
    devServer: {
@@ -24,6 +24,6 @@ var config = {
          }
       ]
    }
-}
+};
 
 module.exports = config;

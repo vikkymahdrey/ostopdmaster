@@ -13,6 +13,11 @@
   font-family: roboto;
 }
 
+.border{
+  border-bottom:1px solid #ddd;
+  padding-bottom:20px
+  }
+
 .loginmodal-container h1 {
   text-align: center;
   font-size: 1.8em;

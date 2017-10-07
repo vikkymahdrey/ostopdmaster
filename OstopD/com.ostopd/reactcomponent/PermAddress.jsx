@@ -6,16 +6,70 @@
 class PermAddress extends React.Component{
     constructor(){
         super();
-        this.state = { data: [],city : [] };
+        this.state = { data: [],city : [],addType:[],country:[]};
         
         this.getStateByCountryId = this.getStateByCountryId.bind(this);
         this.getCityByStateId = this.getCityByStateId.bind(this);
+        this.getFilterData = this.getFilterData.bind(this);
+        
     };
-
+    getFilterData(e){
+        e.preventDefault();
+        
+        var cId=this.refs.cId.value;
+        var sId=this.refs.sId.value;
+        var cityId=this.refs.cityId.value;
+        var pin=this.refs.pin.value;
+        var aId=this.refs.aId.value;
+        var img=this.refs.file1.value;
+     
+        
+      if(cId==0){
+            alert("Please select country!");
+            return false;
+        }else if (sId==0){
+            alert("Please select state!");
+            return false;
+        }else if (cityId==0){
+            alert("Please select city!");
+            return false;
+        }else if (pin==''){
+            alert("Please select pin!");
+            return false;
+        }else if (aId==0){
+            alert("Please select address-type!");
+            return false;
+        }else if(img==''){
+            alert("Please select image file!");
+            return false;
+        }
+            
+      return  fetch('http://localhost:8070/saveAddresses', {    
+          method: 'POST',
+          headers: {'Content-Type': 'application/json;charset=utf-8'},
+          body: JSON.stringify({
+          'cId': cId,
+          'sId' : sId,
+          'cityId' : cityId,
+          'pin' : pin,
+          'aId' : aId,
+          'img' : img
+          })
+      }).then(function(res) {
+          return res.json();
+      }).then(function(json) {
+         alert(json);
+         location.reload();
+                 
+      });
+        
+    };
+    
+    
     
     getStateByCountryId(e){
             e.preventDefault();
-              
+           
             var cId=this.refs.cId.value;
           
                    
@@ -25,24 +79,23 @@ class PermAddress extends React.Component{
                         body: JSON.stringify({
                         'cId': cId
                         })
-                    }).then(function(response) {
-
+                    }).then(function(response){
                         console.log(response.headers.get('Content-Type'));
                         console.log(response.headers.get('Date'));
                         console.log(response.status);
                         console.log(response.statusText);
-                   return response.json();
-              }).then( (json) => {
+                        return response.json();
+                    }).then( (json) => {
                                 this.setState({data: json});
-                }).then(function(body) {
+                    }).then(function(body) {
                    
                     // console.log(body);
                         //alert(eval(JSON.stringify(body)));
                         //alert(JSON.parse(JSON.stringify(body)));
-                return body;
-              }).catch(function(ex) {
-                     console.log('parsing failed', ex);
-              });
+                        return body;
+                      }).catch(function(ex) {
+                             console.log('parsing failed', ex);
+                      });
 
             
     };  
@@ -54,8 +107,7 @@ class PermAddress extends React.Component{
     getCityByStateId(e){
         e.preventDefault();
         
-          alert(this.refs.sId.value)
-        var sId=this.refs.sId.value;
+             var sId=this.refs.sId.value;
       
                
                 return  fetch('http://localhost:8070/getCityByStateId', {    
@@ -81,6 +133,56 @@ class PermAddress extends React.Component{
           }).catch(function(ex) {
                  console.log('parsing failed', ex);
           });
+
+        
+    };
+   
+    componentDidMount(){
+               
+        /*to get address type*/
+                return  fetch('http://localhost:8070/getAddressType', {    
+                    method: 'GET'
+                }).then(function(response) {
+
+                    console.log(response.headers.get('Content-Type'));
+                    console.log(response.headers.get('Date'));
+                    console.log(response.status);
+                    console.log(response.statusText);
+                    return response.json();
+                }).then( (json) => {
+                            this.setState({addType: json});
+                }).then(function(body) {
+                 console.log(body);
+                    //alert(eval(JSON.stringify(body)));
+                    //alert(JSON.parse(JSON.stringify(body)));
+                 return body;
+                  }).catch(function(ex) {
+                         console.log('parsing failed', ex);
+                  });
+    }       
+    
+    
+       componentWillMount(){          
+                /*Getting country*/
+                return  fetch('http://localhost:8070/getCountry', {    
+                    method: 'GET'
+                }).then(function(response) {
+
+                    console.log(response.headers.get('Content-Type'));
+                    console.log(response.headers.get('Date'));
+                    console.log(response.status);
+                    console.log(response.statusText);
+                    return response.json();
+                }).then( (json) => {
+                            this.setState({country: json});
+                }).then(function(body) {
+                 console.log(body);
+                    //alert(eval(JSON.stringify(body)));
+                    //alert(JSON.parse(JSON.stringify(body)));
+                 return body;
+                  }).catch(function(ex) {
+                         console.log('parsing failed', ex);
+                  });
 
         
     };
@@ -119,7 +221,7 @@ class PermAddress extends React.Component{
                       </div>  <br/> 
                       
              <div className="form-group border well">          
-                      <form action="/infoSubmit" name="inputFieldForm" enctype="multipart/form-data" method="post">
+                      <form onSubmit={this.getFilterData}  name="inputFieldForm" enctype="multipart/form-data" method="post">
                                            
                           <div className="row">
                           
@@ -128,9 +230,8 @@ class PermAddress extends React.Component{
                                     <label>Country:</label><br/>
                                         <select id="cId" ref="cId" name="cId" onChange={this.getStateByCountryId}>
                                         <option value="0">---Select Country---</option>
-                                        <option value="1">India</option>
-                                        <option value="2">America</option>
-                                        <option value="3">Japan</option>
+                                        {this.state.country.map((countryKey, i) => <Country key = {i} 
+                                            country = {countryKey} />)}  
                                                                       
                                      </select> 
                                    
@@ -156,10 +257,10 @@ class PermAddress extends React.Component{
                                      <div className="row">              
                                           <div className="col-sm-6">
                                               <label>District/City:</label><br/>
-                                                  <select id="cId" name="cId" >
-                                                  <option value="0">---Select District---</option>
-                                              {/*this.state.city.length==0 &&
-                                                  <option value="0">---Select District---</option>*/}
+                                                  <select id="cityId" ref="cityId" name="cityId" >
+                                              { /*<option value="0">---Select District---</option>*/}
+                                             {this.state.city.length==0 &&
+                                                  <option value="0">---Select District---</option>}
                                                  
                                                   {this.state.city.map((cKey, i) => <CityData key = {i} 
                                                   city = {cKey} />)} 
@@ -175,9 +276,9 @@ class PermAddress extends React.Component{
                                                   <div className="col-sm-6">
                                                   <label>Pincode:</label><br/>
                                                   {this.state.city.length==0 &&
-                                                      <input type="text" id="pin" name="pin" placeholder="Enter pincode"/>}
+                                                      <input type="text" id="pin" ref="pin" name="pin" placeholder="Enter pincode"/>}
                                                   {this.state.city.length!=0 &&
-                                                  <input type="text" id="pin" name="pin" value={this.state.city[0].pincode}/>}
+                                                  <input type="text" id="pin" ref="pin" name="pin" value={this.state.city[0].pincode}/>}
                                                            
                                                             
                                                   </div>
@@ -186,10 +287,10 @@ class PermAddress extends React.Component{
                           <div className="row">                
                                 <div className="col-sm-6">
                                 <label>Address-type:</label><br/>
-                                         <select id="cId" name="cId" onchange="getDevId(this.form.cId.value)">
+                                         <select id="aId" ref="aId" name="aId">
                                             <option value="0">---Select Type---</option>
-                                            <option value="1">Hotel</option>
-                                            <option value="2">Restaurant</option>
+                                            {this.state.addType.map((aKey, i) => <AddressType key = {i} 
+                                            addType = {aKey} />)} 
                                                                           
                                          </select>   
                                          
@@ -200,7 +301,7 @@ class PermAddress extends React.Component{
                           <div className="row">       
                                  <div className="col-sm-6">
                                  <label>Image Upload:</label><br/>
-                                     <input type="file" name="file1" accept="text/plain" id="file1"  />
+                                     <input type="file" ref="file1" name="file1" id="file1"  />
                                  </div>
                           </div>  <br/>            
                          
@@ -250,12 +351,34 @@ class CityData extends React.Component {
 class Pincode extends React.Component {
     render() {
        return (
-                   <input type="text" id="pin" name="pin" value={this.props.city.pincode}/>
+                   <input type="text" id="pin" ref="pin" name="pin" value={this.props.city.pincode}/>
                          
         
        );
     }
  }
+
+
+class AddressType extends React.Component {
+    render() {
+       return (
+               <option value={this.props.addType.id} >{this.props.addType.address_type}</option>
+                         
+        
+       );
+    }
+ }
+
+class Country extends React.Component {
+    render() {
+       return (
+               <option value={this.props.country.id} >{this.props.country.country_name}</option>
+                         
+        
+       );
+    }
+ }
+
 
 
 

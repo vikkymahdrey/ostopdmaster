@@ -6,13 +6,28 @@
 
 
 class HomeApp extends React.Component{
-    componentWillMount() {
+    constructor(){
+        super();
+        this.state = { data: [] };
+      
+    };
+    
+    /*componentDidMount(){
         console.log('Component WILL MOUNT!')
-         {/*Session.get('userId')*/}
-     };
+       return fetch('http://localhost:8070/getUserById', {    
+            method: 'GET'                     
+        }).then(function(res){
+            return res.json();
+        }).then(function(json){
+            alert(json);
+                     
+        });
+        
+     };*/
+     
     render() {
     return (
-            
+          
             <div className="container-fluid">
               <nav className="navbar navbar-inverse">
                 <div className="navbar-header">
@@ -30,7 +45,7 @@ class HomeApp extends React.Component{
                       <li><a href="/getHotels"><b>Hotels</b></a></li>   
                       <li><a href="/getRestaurants"><b>Restaurants</b></a></li>  
                       <li><a href="/getProfile"><b>UserProfile</b></a></li>  
-                      
+                     
                       
                       
                   
@@ -49,6 +64,7 @@ class HomeApp extends React.Component{
                     
                         <div className="row">
                             <div className="col-sm-12">
+                     
                                 <span className="glyphicon glyphicon-info-sign"><b>Personal-Information</b></span>
                             </div>
                         </div><br/><br/><br/>

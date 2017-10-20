@@ -6,7 +6,7 @@
 class Hotels extends React.Component{
     constructor(){
         super();
-        this.state = { data: [],city : [],addType:[],country:[]};
+        this.state = { data: [],city : [],addType:[],country:[],hotels: []};
         
         this.getStateByCountryId = this.getStateByCountryId.bind(this);
         this.getCityByStateId = this.getCityByStateId.bind(this);
@@ -19,7 +19,7 @@ class Hotels extends React.Component{
         var cId=this.refs.cId.value;
         var sId=this.refs.sId.value;
         var cityId=this.refs.cityId.value;
-        var aId=this.refs.aId.value;   
+        
         
         
         if(cId==0){
@@ -31,9 +31,6 @@ class Hotels extends React.Component{
         }else if (cityId==0){
             alert("Please select city!");
             return false;
-        }else if (aId==0){
-            alert("Please select address-type!");
-            return false;
         }
             
       return  fetch('http://localhost:8070/getHotelsByAddress', {    
@@ -42,17 +39,26 @@ class Hotels extends React.Component{
           body: JSON.stringify({
           'cId': cId,
           'sId' : sId,
-          'cityId' : cityId,
-          'aId' : aId
+          'cityId' : cityId       
          
           })
-      }).then(function(res) {
-          return res.json();
-      }).then(function(json) {
-         alert(json);
-         location.reload();
-                 
-      });
+      }).then(function(response){
+          console.log(response.headers.get('Content-Type'));
+          console.log(response.headers.get('Date'));
+          console.log(response.status);
+          console.log(response.statusText);
+          return response.json();
+      }).then( (json) => {
+                  this.setState({hotels: json});
+      }).then(function(body) {
+     
+      // console.log(body);
+          //alert(eval(JSON.stringify(body)));
+          //alert(JSON.parse(JSON.stringify(body)));
+          return body;
+        }).catch(function(ex) {
+               console.log('parsing failed', ex);
+        });
         
     };
     
@@ -164,7 +170,7 @@ class Hotels extends React.Component{
     
     
     
-       componentWillMount(){          
+    componentDidMount (){          
                 /*Getting country*/
                 return  fetch('http://localhost:8070/getCountry', {    
                     method: 'GET'
@@ -210,7 +216,7 @@ class Hotels extends React.Component{
                       <li><a href="/getProfile"><b>UserProfile</b></a></li> 
                 </ul>
                  <ul className="nav navbar-nav navbar-right">
-                   <li><a href="#"><span className="glyphicon glyphicon-user"></span><b> Welcome OstopD Team</b></a></li>
+                   
                    <li className="log"><a href="/"><span className="glyphicon glyphicon-log-in"></span><b>Logout&nbsp;</b></a></li>
                 </ul>
              </nav>
@@ -247,7 +253,7 @@ class Hotels extends React.Component{
                                        
                               <div className="col-sm-3">
                               <label>District/City:</label><br/>
-                                  <select id="cityId" ref="cityId" name="cityId" onChange={this.getHotelsByCityId}>
+                                  <select id="cityId" ref="cityId" name="cityId" >
                                      <option value="0">---Select District---</option>
                                      {/*this.state.city.length==0 &&
                                           <option value="0">---Select City---</option>*/}
@@ -260,33 +266,32 @@ class Hotels extends React.Component{
                                        
                               </div>
                                           
-                              <div className="col-sm-3">
-                                          <label>Hotels:</label><br/>
-                                              <select id="aId" ref="aId" name="aId">
-                                              <option value="0">---Select Type---</option>
-                                              {this.state.addType.map((aKey, i) => <AddressType key = {i} 
-                                              addType = {aKey} />)} 
-                                                                            
-                                           </select>   
-                                                   
-                              </div>
-                               
-                                
-                          </div>  <br/><br/>
+                                             
+                                      
                                           
-                          <div className="row">
-                                     <div className="col-sm-6 text-right">                        
-                                          <input type="submit" className="btn btn-primary " value="Search"/>
-                                     </div> 
-                          </div>            
+                              <div className="col-sm-3">
+                                  <br/>              
+                                     <input type="submit" className="btn btn-primary btn-sm" value="Search"/>
+                                        
+                              </div>        
+                          </div>  
                     </form>     
     
                         
-          </div>     
+          </div>    
+          
+                                  <div className="row">
+                                      <div className="col-sm-12 text-center"> 
+                                          {this.state.hotels.map((hotel, i) => <Hotel key = {i} 
+                                              hotels = {hotel} />)}  
+                                       </div>
+                                  </div>   
+                                 
+                                      
                     
         
 
-<Footer/>
+
 </div>
 
         
@@ -294,6 +299,25 @@ class Hotels extends React.Component{
      }
     }
 
+class Hotel extends React.Component {
+    render() {
+       return (
+              
+               <div className="row">
+               <div className="col-sm-6"> 
+                   <h3>{this.props.hotels.address_type_name}</h3><br/> 
+                   <p>Address : pending</p><br/>
+                   <p>Price : pending</p>
+                </div>
+               <div className="col-sm-6"> 
+                   <a href="https://vivanta.tajhotels.com/"><img src="../images/vivanta1.jpg"></img></a>    
+               </div>
+       </div>
+                         
+        
+       );
+    }
+ }
 
 class StateData extends React.Component {
     render() {

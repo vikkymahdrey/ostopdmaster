@@ -39,12 +39,12 @@ class PermAddress extends React.Component{
         }else if (aId==0){
             alert("Please select address-type!");
             return false;
-        }else if(img==''){
+        }/*else if(img==''){
             alert("Please select image file!");
             return false;
-        }
+        }*/
             
-      return  fetch('http://localhost:8070/saveAddresses', {    
+      return  fetch('http://localhost:8070/saveAddresses',{    
           method: 'POST',
           headers: {'Content-Type': 'application/json;charset=utf-8'},
           body: JSON.stringify({
@@ -55,11 +55,11 @@ class PermAddress extends React.Component{
           'aId' : aId,
           'img' : img
           })
-      }).then(function(res) {
+      }).then(function(res){
           return res.json();
-      }).then(function(json) {
+      }).then(function(json){
          alert(json);
-         location.reload();
+      
                  
       });
         
@@ -209,7 +209,7 @@ class PermAddress extends React.Component{
                       <li><a href="/getProfile"><b>UserProfile</b></a></li>  
                 </ul>
                  <ul className="nav navbar-nav navbar-right">
-                   <li><a href="#"><span className="glyphicon glyphicon-user"></span><b> Welcome OstopD Team</b></a></li>
+                   
                    <li className="log"><a href="/"><span className="glyphicon glyphicon-log-in"></span><b>Logout&nbsp;</b></a></li>
                 </ul>
              </nav>
@@ -298,12 +298,12 @@ class PermAddress extends React.Component{
                           </div> <br/>    
                                             
                            
-                          <div className="row">       
+                        { /* <div className="row">       
                                  <div className="col-sm-6">
                                  <label>Image Upload:</label><br/>
                                      <input type="file" ref="file1" name="file1" id="file1"  />
                                  </div>
-                          </div>  <br/>            
+                          </div>  <br/> */  }         
                          
                            <div className="row">       
                                   <div className="col-sm-6">

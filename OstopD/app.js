@@ -19,6 +19,7 @@ var express = require('express');
 											var cookieParser = require('cookie-parser');
 									    	     var session = require('express-session');
 									    	     	var fileUpload = require('express-fileupload');
+									    	     	
 									    	     
 
 //for parsing multipart/form-data
@@ -35,11 +36,11 @@ app.use(cookieParser());
 //Use the session middleware
 /*app.use(session({ secret: 'atapp', cookie: { maxAge: 1000000000 }}));*/
 
-
+//app.use(session({ resave: true ,secret: '123456' , saveUninitialized: true}));
 app.use (
 		   session ({
 		      secret: "atapp",
-		      saveUninitialized: false,
+		      saveUninitialized: true,
 		      resave: true,
 		      rolling: true,
 		      cookie: {
@@ -57,23 +58,87 @@ app.engine('jsx', require('express-react-views').createEngine());
 
 
 app.get('/', function (req, res) {
-  	res.sendFile( app.get('view') + "login.html" );
-		console.log("URL :",req.path);
+	console.log("URL :",req.path);
+	var session=req.session;
+	
+	console.log("/redirected session:",session.msg);
+	if(session.msg===undefined){
+		res.sendFile( app.get('view') + "login.html" );
+	}else{
+		res.sendFile( app.get('view') + "invalid.html" );
+	}
+		
+						
 });
 
-app.get('/ostopD', function (req, res) {
+
+app.get('/ostopD1', function (req, res) {
 	console.log("/ostopD session :",req.session.userId);
   	res.sendFile( app.get('view') + "home.html" );
 		
 });
 
-app.post('/login', function (req, res) {
-	console.log("In /loginSubmit");
+app.get('/getAddressStatus', function (req, res) {
+	console.log("/getAddressStatus handler");
+	res.sendFile( app.get('view') + "viewAddress.html" );
+		
+});
 
-	//console.log("onSubmit url",req.param('uname'));
-	var uname=req.body.uname;
-		var pass=req.body.pass;
-			var queryString="SELECT * FROM tbl_user_info where loginId='"+uname+"' and password='"+pass+"'"+" and active='"+1+"'";
+
+app.get('/fetchViewAddress', function (req, res) {
+	console.log("/getViewAddress handler");
+	var usrId=req.session.usr;
+	var role=req.session.role;
+	
+	var queryString="SELECT ua.id,u.displayname,co.country_name,s.state_name,c.city_name,approval_status,at.address_type FROM tbl_user_addresstype ua join tbl_city c on ua.city_id=c.id join tbl_state s on c.state_id=s.id join tbl_country co on s.country_id=co.id join tbl_user_info u on ua.user_id=u.id join tbl_address_type at on ua.address_type=at.id where approval_status='pending' ";
+	console.log("Query..", queryString);
+	
+	db.query(queryString, function (err, result, fields) {
+	if (err){
+		console.error(err);
+		throw err;	    
+	}	     
+	if(result.length>0){
+		 console.log(result);
+		 res.json(result);
+	}else{	 
+		res.json("Data not found!");
+	}	
+	});
+	
+});
+app.get('/ostopd', function(req, res) {
+	console.log("/ostopd user :",req.session.usr);
+	console.log("/ostopd role :",req.session.role);
+	app.set('usrId', req.session.usr);
+  	res.sendFile( app.get('view') + "home.html" );
+		
+});
+
+
+app.get('/adminView', function (req, res) {
+	console.log("/ostopd user :",req.session.usr);
+	console.log("/ostopd role :",req.session.role);
+  	res.sendFile( app.get('view') + "adminView.html" );
+		
+});
+
+
+app.get('/ostopdAdmin', function (req, res) {
+	console.log("/ostopd user :",req.session.usr);
+	console.log("/ostopd role :",req.session.role);
+  	res.sendFile( app.get('view') + "admin.html" );
+		
+});
+
+app.get('/login', function (req, res) {
+	console.log("In /loginSubmit");
+	var session=req.session;
+	
+	var uname=req.param('uname');
+		//var pass=req.body.pass;
+	var pass=req.param('pass');
+		var queryString="SELECT * FROM tbl_user_info where loginId='"+uname+"' and password='"+pass+"'"+" and active='"+1+"'";
 			console.log("Query..", queryString);
 			
 	db.query(queryString, function (err, result, fields) {
@@ -82,30 +147,34 @@ app.post('/login', function (req, res) {
 	    	throw err;	    
 	    }	     
 	    if(result.length>0){
-			   console.log(result);
-			   		
-			   		
-			   		/*set session attribute*/
-			   		var sess=req.session;
-			   			sess.usr=result[0].id;
-			   			sess.role=result[0].roleId;
-			   			console.log("idd1111",sess.usr);
-			   			//console.log("responseeee",req.cookies.id);
+			 console.log(result);
+			 /*set session attribute*/
+			  session.usr=result[0].id;
+			    session.role=result[0].roleId;
+			    session.displayname=result[0].displayname;
+			    if(result[0].roleId===1){
+			    	res.redirect('/ostopd');
+			    }else if(result[0].roleId===2){
+			    	res.redirect('/adminView');
+			    }	
 			  
-			   		//res.cookie('id', id, { maxAge: 900000, httpOnly: true });
-			   			//console.log("responseeee",req.cookies.id);
-			   				//res.cookie(name, 'value', {maxAge: 360000});   		
-			   	  				// var data=JSON.stringify(result);
-			   						//var data=JSON.parse(data);
-			   							//console.log("id encoded"+new Buffer('JavaScript').toString('base64'));
-					    	//console.log(Buffer.from(id, 'base64').toString());
-					    	//console.error("encode",new Buffer('SmF2YVNjcmlwdA==', 'base64'));
-			    	res.json(base64.encode(result[0].id));
-			    	res.end();
-			 	    //res.redirect('/home/'+string);
-			    	//res.sendFile( app.get('view') + "login.html" );
+			    		/*Cookie Management
+			    
+			   			res.cookie('id', id, { maxAge: 900000, httpOnly: true });
+			   			console.log("responseeee",req.cookies.id);
+			   			res.cookie(name, 'value', {maxAge: 360000});   		
+			   	  		var data=JSON.stringify(result);
+			   			var data=JSON.parse(data);
+			   			console.log("id encoded"+new Buffer('JavaScript').toString('base64'));
+					    console.log(Buffer.from(id, 'base64').toString());
+					    console.error("encode",new Buffer('SmF2YVNjcmlwdA==', 'base64'));
+			    	    res.json(base64.encode(result[0].id));
+			    	    res.end();*/
+			    		 	   
+			    	  //res.sendFile( app.get('view') + "login.html" );
 	    }else{
-	    	res.json(0);
+	    	  session.msg='Invalid username/password';
+	    	  res.redirect('/');
 	    }	   
 	  });
 			
@@ -163,10 +232,9 @@ app.get('/home/:id', function (req, res) {
 
 app.get('/getUserById', function (req, res) {
 	console.log("In /getUserById handler" );
-	var s=req.session;
-	var	id=s.he;
-		console.log("In /getUserById id",req.session.he );
-		var	queryString="SELECT * FROM tbl_user_info where id='"+id+"'";
+	var id=app.get('usrId');	
+		console.log("In /getUserById id",id);
+		var	queryString="SELECT * FROM tbl_user_info where id="+id;
 		console.log("Query..", queryString);
 		
 	db.query(queryString, function (err, result, fields) {
@@ -176,42 +244,16 @@ app.get('/getUserById', function (req, res) {
 	    }	     
 	    if(result.length>0){
 			    console.log(result);
-			 res.json(result);
+			 res.json(result[0]);
 			 	  
 	    }else{
-	       	res.send('Sorry, we cannot find that!');
+	       	res.json([]);
 	    }	   
 	  });
   	
 		
 });
 
-app.get('/getData', function (req, res) {
-	console.log("In /getData handler" );
-	//var sess=req.session;
-	//var	id=sess.userId;
-	
-	var id="1";
-		console.log("In /getUserById id",req.session.he );
-		var	queryString="SELECT * FROM tbl_user_info where id='"+id+"'";
-		console.log("Query..", queryString);
-		
-	db.query(queryString, function (err, result, fields) {
-	    if (err){
-	    	console.error(err);
-	    	throw err;	    
-	    }	     
-	    if(result.length>0){
-			    console.log(result);
-			 res.json(result);
-			 	  
-	    }else{
-	       	res.send('Sorry, we cannot find that!');
-	    }	   
-	  });
-  	
-		
-});
 
 
 app.get('/getPermAdd', function (req, res) {
@@ -230,7 +272,7 @@ app.get('/getProfile', function (req, res) {
 
 app.get('/getRestaurants', function (req, res) {
 	console.log("In /getRestaurants handler" );
-	console.log("In /getRestaurants session",req.session.userId );
+	console.log("In /getRestaurants session",req.session.usr );
 	
   	res.sendFile(app.get('view') + "Restaurants.html" );
 		console.log("URL :",req.path);
@@ -238,7 +280,7 @@ app.get('/getRestaurants', function (req, res) {
 
 app.get('/getHotels', function (req, res) {
 	console.log("In /getHotels handler" );
-	console.log("In /getHotels session",req.session.userId );
+	console.log("In /getHotels session",req.session.usr );
   	res.sendFile(app.get('view') + "Hotels.html" );
 		console.log("URL :",req.path);
 });
@@ -287,49 +329,148 @@ app.post('/getCityByStateId', function (req, res) {
 
 app.post('/saveAddresses', function(req, res){
 	console.log("In /saveAddresses handler");
-	var id=req.session.userId;
-	console.log("user session",id);
+	var id=app.get('usrId');
 	
-	id="1";
-	  var cId=req.body.cId;
-		  var sId=req.body.sId;
+	console.log("/saveAddresses get user session",id);
+	
+	     var cId=req.body.cId;
+		    var sId=req.body.sId;
 				var cityId=req.body.cityId;
-					var pin=req.body.pin;
-						var aId=req.body.aId;
-							var img=req.body.img;
-											
+					var aId=req.body.aId;
+												
 						console.log("cId",cId);
 						console.log("sId",sId);
 						console.log("cityId",cityId);
-						console.log("pin",pin);
 						console.log("aId",aId);
-						console.log("img",img);
-		//var queryString="UPDATE tbl_user_addresstype SET city_id="+cityId+",user_id="+id+",address_type="+aId;
-		var queryString="insert into tbl_user_addresstype (address_type,city_id,user_id,approval_status) values("+aId+","+cityId+","+id+",'pending')";
+						
+		var queryString="select * from tbl_user_addresstype where city_id="+cityId+" and user_id="+id+" and address_type="+aId;
+		var queryString1="insert into tbl_user_addresstype (address_type,city_id,user_id,approval_status) values("+aId+","+cityId+","+id+",'pending')";
 		console.log("Query..", queryString);
 						
-				db.query(queryString, function (err, result, fields) {
-				    if (err){
-				    	console.error(err);
-				    	throw err;	    
-				    }	
-				    console.log("update result",result.affectedRows);
-				    if(result.affectedRows===1){
-						     res.json('Address updated successully!');		    	 
-				    }else{
-				        res.json('Address updation failed!');
-				    }	   
-				  });			
+			db.query(queryString, function (err, result, fields){
+			    if(err){
+			    	console.error(err);
+			    	throw err;	    
+			    }	
+			    console.log("resultant result",result);
+			    if(result.length>0){
+					     res.json('Address already exist!');		    	 
+			    }else{			    	
+			    	db.query(queryString1, function (err, result, fields){
+					    if (err){
+					    	console.error(err);
+					    	throw err;	    
+					    }	
+					    console.log("update result",result.affectedRows);
+					    if(result.affectedRows===1){
+							     res.json('Address updated successully!');		    	 
+					    }else{
+					        res.json('Address updation failed!');
+					    }	   
+					  });
+			    }	   
+			  });
+		
+						
 						
 	
 	});
 
+app.post('/editCity', function(req, res){
+	console.log("In /editCity handler");
+	var id=app.get('usrId');
+		
+	     var cId=req.body.cId;
+		    var sId=req.body.sId;
+				var cityId=req.body.cityId;
+				
+												
+						console.log("cId",cId);
+						console.log("sId",sId);
+						console.log("cityId",cityId);
+							res.json('Successfully updated');
+		/*				
+		var queryString="";
+		console.log("Query..", queryString);
+						
+			db.query(queryString, function (err, result, fields){
+			    if(err){
+			    	console.error(err);
+			    	throw err;	    
+			    }	
+			    console.log("resultant result",result);
+			    if(result.length>0){
+					     res.json(result[0]);		    	 
+			    }else{			    	
+			    	res.json('Updation failed!');
+			    }	   
+			  });
+		
+					*/	
+						
+	
+	});
+
+
+
+app.post('/getRestaurantsByAddress', function(req, res){
+	console.log("In /getHotelsByAddress handler");
+	var cId=req.body.cId;
+	var sId=req.body.sId;
+	var cityId=req.body.cityId;
+	
+	console.log("cId", cId);
+	console.log("sId", sId);
+	console.log("cityId", cityId);
+	
+	var queryString="SELECT * from tbl_city_address_type where city_id="+cityId+" and address_type_id=2 and active='1'";
+	console.log("Query..", queryString);
+			
+		db.query(queryString, function (err, result, fields) {
+		if (err){
+			console.error(err);
+			throw err;	    
+		}	     
+		if(result.length>0){
+			    console.log(result);
+			   	   res.json(result);		    	 
+		}else{
+			res.json([]);
+		}	   
+		});
+	
+		
+	
+	});
+
+
 app.post('/getHotelsByAddress', function(req, res){
 	console.log("In /getHotelsByAddress handler");
-	var id=req.session.userId;
-	console.log("user session",id);
-	  res.json('Coming soon!');		    	 
+	var cId=req.body.cId;
+	var sId=req.body.sId;
+	var cityId=req.body.cityId;
+	
+	console.log("cId", cId);
+	console.log("sId", sId);
+	console.log("cityId", cityId);
+	
+	var queryString="SELECT * from tbl_city_address_type where city_id="+cityId+" and address_type_id=1 and active='1'";
+	console.log("Query..", queryString);
 			
+		db.query(queryString, function (err, result, fields) {
+		if (err){
+			console.error(err);
+			throw err;	    
+		}	     
+		if(result.length>0){
+			    console.log(result);
+			   	   res.json(result);		    	 
+		}else{
+			res.json([]);
+		}	   
+		});
+	
+		
 	
 	});
 
@@ -359,8 +500,7 @@ app.get('/getAddressType', function (req, res) {
 
 app.get('/getCountry', function (req, res) {
 	console.log("In /getCountry handler" );
-
-		var	queryString="SELECT * FROM tbl_country";
+	var	queryString="SELECT * FROM tbl_country";
 		console.log("Query..", queryString);
 		
 	db.query(queryString, function (err, result, fields) {

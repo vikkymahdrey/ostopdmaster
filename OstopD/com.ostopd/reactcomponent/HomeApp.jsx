@@ -8,22 +8,33 @@
 class HomeApp extends React.Component{
     constructor(){
         super();
-        this.state = { data: [] };
+        this.state = { data: {} };
       
     };
     
-    /*componentDidMount(){
-        console.log('Component WILL MOUNT!')
+    componentDidMount(){
+        
        return fetch('http://localhost:8070/getUserById', {    
             method: 'GET'                     
-        }).then(function(res){
-            return res.json();
-        }).then(function(json){
-            alert(json);
-                     
-        });
+        }).then(function(response){
+            console.log(response.headers.get('Content-Type'));
+            console.log(response.headers.get('Date'));
+            console.log(response.status);
+            console.log(response.statusText);
+            return response.json();
+        }).then( (json) => {
+                    this.setState({data: json});
+        }).then(function(body) {
+       
+        // console.log(body);
+            //alert(eval(JSON.stringify(body)));
+            //alert(JSON.parse(JSON.stringify(body)));
+            return body;
+          }).catch(function(ex) {
+                 console.log('parsing failed', ex);
+          });
         
-     };*/
+     };
      
     render() {
     return (
@@ -51,7 +62,7 @@ class HomeApp extends React.Component{
                   
                 </ul>
                  <ul className="nav navbar-nav navbar-right">
-                   <li><a href="#"><span className="glyphicon glyphicon-user"></span><b> Welcome ostopd_admin</b></a></li>
+                   <li><a href="#"><span className="glyphicon glyphicon-user"></span><b> Welcome {this.state.data.displayname}</b></a></li>
                    <li className="log"><a href="/"><span className="glyphicon glyphicon-log-in"></span><b>Logout&nbsp;</b></a></li>
                 </ul>
                       
@@ -74,10 +85,10 @@ class HomeApp extends React.Component{
                   
                     <div className="row">
                         <div className="col-md-2 col-sm-5 col-xs-6 mar-top-15 text-lightgrey"><span className="glyphicon glyphicon-user">&nbsp;FirstName:</span></div>
-                        <div className="col-md-2 col-sm-5 col-xs-6 mar-top-15">OstopD</div>
+                        <div className="col-md-2 col-sm-5 col-xs-6 mar-top-15">{this.state.data.firstname}</div>
                         
                         <div className="col-md-2 col-sm-5 col-xs-6 mar-top-15 col-md-offset-2 text-lightgrey"><span className="glyphicon glyphicon-user">&nbsp;LastName:</span></div>
-                        <div className="col-md-2 col-sm-7 col-xs-6 mar-top-15">Team</div>                        
+                        <div className="col-md-2 col-sm-7 col-xs-6 mar-top-15">{this.state.data.lastname}</div>                        
                     </div><br/>
                     
                                     
@@ -85,10 +96,10 @@ class HomeApp extends React.Component{
                     <div className="row">
                         
                         <div className="col-md-2 col-sm-5 col-xs-6 mar-top-15 text-lightgrey "><span className="glyphicon glyphicon-envelope">&nbsp;Email:</span></div>
-                        <div className="col-md-2 col-sm-5 col-xs-6 mar-top-15 ">info@atapplication.com</div>
+                        <div className="col-md-2 col-sm-5 col-xs-6 mar-top-15 ">{this.state.data.emailaddress}</div>
                         
                         <div className="col-md-2 col-sm-5 col-xs-6 mar-top-15 col-md-offset-2 text-lightgrey"><span className="glyphicon glyphicon-modal-window">&nbsp;Mobile No:</span></div>
-                        <div className="col-md-2 col-sm-5 col-xs-6 mar-top-15">+91 9620300915</div>                      
+                        <div className="col-md-2 col-sm-5 col-xs-6 mar-top-15">{this.state.data.contactnumber}</div>                      
                     </div>
                                            
               </div><br/> <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>  

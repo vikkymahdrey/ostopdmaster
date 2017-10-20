@@ -6,7 +6,7 @@
 class Restaurants extends React.Component{
     constructor(){
         super();
-        this.state = { data: [],city : [],addType:[],country:[]};
+        this.state = { data: [],city : [],addType:[],country:[],restaurant:[]};
         
         this.getStateByCountryId = this.getStateByCountryId.bind(this);
         this.getCityByStateId = this.getCityByStateId.bind(this);
@@ -19,8 +19,7 @@ class Restaurants extends React.Component{
         var cId=this.refs.cId.value;
         var sId=this.refs.sId.value;
         var cityId=this.refs.cityId.value;
-        var aId=this.refs.aId.value;   
-        
+     
         
         if(cId==0){
             alert("Please select country!");
@@ -31,29 +30,35 @@ class Restaurants extends React.Component{
         }else if (cityId==0){
             alert("Please select city!");
             return false;
-        }else if (aId==0){
-            alert("Please select address-type!");
-            return false;
         }
             
-      return  fetch('http://localhost:8070/getHotelsByAddress', {    
+      return  fetch('http://localhost:8070/getRestaurantsByAddress', {    
           method: 'POST',
           headers: {'Content-Type': 'application/json;charset=utf-8'},
           body: JSON.stringify({
           'cId': cId,
           'sId' : sId,
-          'cityId' : cityId,
-          'aId' : aId
+          'cityId' : cityId
+          
          
           })
-      }).then(function(res) {
-          return res.json();
-      }).then(function(json) {
-         alert(json);
-         location.reload();
-                 
-      });
-        
+      }).then(function(response){
+          console.log(response.headers.get('Content-Type'));
+          console.log(response.headers.get('Date'));
+          console.log(response.status);
+          console.log(response.statusText);
+          return response.json();
+      }).then( (json) => {
+                  this.setState({restaurant: json});
+      }).then(function(body) {
+     
+      // console.log(body);
+          //alert(eval(JSON.stringify(body)));
+          //alert(JSON.parse(JSON.stringify(body)));
+          return body;
+        }).catch(function(ex) {
+               console.log('parsing failed', ex);
+        });
     };
     
     
@@ -164,7 +169,7 @@ class Restaurants extends React.Component{
     
     
     
-       componentWillMount(){          
+    componentDidMount(){          
                 /*Getting country*/
                 return  fetch('http://localhost:8070/getCountry', {    
                     method: 'GET'
@@ -208,9 +213,10 @@ class Restaurants extends React.Component{
                       <li><a href="/getHotels"><b>Hotels</b></a></li>   
                       <li><a href="/getRestaurants"><b>Restaurants</b></a></li>  
                       <li><a href="/getProfile"><b>UserProfile</b></a></li> 
+                      
                 </ul>
                  <ul className="nav navbar-nav navbar-right">
-                   <li><a href="#"><span className="glyphicon glyphicon-user"></span><b> Welcome OstopD Team</b></a></li>
+                 
                    <li className="log"><a href="/"><span className="glyphicon glyphicon-log-in"></span><b>Logout&nbsp;</b></a></li>
                 </ul>
              </nav>
@@ -247,7 +253,7 @@ class Restaurants extends React.Component{
                                        
                               <div className="col-sm-3">
                               <label>District/City:</label><br/>
-                                  <select id="cityId" ref="cityId" name="cityId" onChange={this.getRestaurantsByCityId}>
+                                  <select id="cityId" ref="cityId" name="cityId" >
                                      <option value="0">---Select District---</option>
                                      {/*this.state.city.length==0 &&
                                           <option value="0">---Select City---</option>*/}
@@ -260,33 +266,30 @@ class Restaurants extends React.Component{
                                        
                               </div>
                                           
-                              <div className="col-sm-3">
-                                          <label>Restaurants:</label><br/>
-                                              <select id="aId" ref="aId" name="aId">
-                                              <option value="0">---Select Type---</option>
-                                              {this.state.addType.map((aKey, i) => <AddressType key = {i} 
-                                              addType = {aKey} />)} 
-                                                                            
-                                           </select>   
-                                                   
-                              </div>
+                               <div className="col-sm-3">
+                                      <br/>
+                                      <input type="submit" className="btn btn-primary btn-sm" value="Search"/>
+                                         
+                               </div>  
                                
                                 
-                          </div>  <br/><br/>
-                                          
-                          <div className="row">
-                                     <div className="col-sm-6 text-right">                        
-                                          <input type="submit" className="btn btn-primary " value="Search"/>
-                                     </div> 
-                          </div>            
+                          </div>     
                     </form>     
     
                         
           </div>     
                     
-        
+                                                                
+                              <div className="row">
+                                  <div className="col-sm-12 text-center"> 
+                                      {this.state.restaurant.map((restau, i) => <Restaurant key = {i} 
+                                          restaurant = {restau} />)}  
+                                   </div>
+                              </div>   
+                                      
+                              
 
-<Footer/>
+
 </div>
 
         
@@ -294,6 +297,27 @@ class Restaurants extends React.Component{
      }
     }
 
+class Restaurant extends React.Component {
+    render() {
+       return (
+               
+               
+              
+       <div className="row">
+               <div className="col-sm-6"> 
+                   <h3>{this.props.restaurant.address_type_name}</h3><br/> 
+                   <p>Address : pending</p><br/>
+                   <p>Price : pending</p>
+                </div>
+               <div className="col-sm-6"> 
+                   <a href="http://www.olivegarden.com/home"><img src="../images/olive.jpg"></img></a>  
+               </div>
+       </div>
+                         
+        
+       );
+    }
+ }
 
 class StateData extends React.Component {
     render() {

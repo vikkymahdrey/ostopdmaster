@@ -11,8 +11,7 @@ class LoginApp extends React.Component{
             this.login = this.login.bind(this);
         };
         
-       
-
+     
         /* onSubmit fetch call */
         login(e){
                 e.preventDefault();
@@ -24,9 +23,9 @@ class LoginApp extends React.Component{
                
                /*validating input fields*/     
                if(uname==""){
-                    alert("Username should not emptty - please try again!");
+                    alert("Username should not empty - please try again!");
                }else if (pass==""){
-                     alert("Password should not emptty - please try again!");
+                     alert("Password should not empty - please try again!");
                }else{
                     
                         return  fetch('http://localhost:8070/login', {    
@@ -61,9 +60,10 @@ class LoginApp extends React.Component{
                              <div className="modal-dialog">
                                    <div className="loginmodal-container">
                                        <h1><b>OstopD Login</b></h1><br></br>
-                                     <form onSubmit={this.login} name="user_validation_form" id="user_validation_form" method="post">
+                                     <form action="http://localhost:8070/login" name="user_validation_form" id="user_validation_form" method="get">
                                        <input type="text" id="uname" ref="uname" name="uname" placeholder="Username"/>
                                        <input type="password" id="pass" ref="pass" name="pass" placeholder="Password"/>
+                                       <label id="passvalid"></label>
                                        <input type="submit" name="login" className="login loginmodal-submit" value="Login"/>
                                      </form>
                                        

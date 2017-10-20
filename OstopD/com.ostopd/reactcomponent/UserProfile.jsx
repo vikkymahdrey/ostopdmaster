@@ -6,7 +6,7 @@
 class UserProfile extends React.Component{
     constructor(){
         super();
-        this.state = { data: [],city : [],addType:[],country:[]};
+        this.state = { data: [],city : [],country:[],user:{}};
         
         this.getStateByCountryId = this.getStateByCountryId.bind(this);
         this.getCityByStateId = this.getCityByStateId.bind(this);
@@ -16,12 +16,11 @@ class UserProfile extends React.Component{
     getFilterData(e){
         e.preventDefault();
         
+        alert("hii");
         var cId=this.refs.cId.value;
         var sId=this.refs.sId.value;
         var cityId=this.refs.cityId.value;
-        var pin=this.refs.pin.value;
-        var aId=this.refs.aId.value;
-        var img=this.refs.file1.value;
+       
      
         
       if(cId==0){
@@ -33,27 +32,16 @@ class UserProfile extends React.Component{
         }else if (cityId==0){
             alert("Please select city!");
             return false;
-        }else if (pin==''){
-            alert("Please select pin!");
-            return false;
-        }else if (aId==0){
-            alert("Please select address-type!");
-            return false;
-        }else if(img==''){
-            alert("Please select image file!");
-            return false;
         }
             
-      return  fetch('http://localhost:8070/saveAddresses', {    
+      return  fetch('http://localhost:8070/editCity', {    
           method: 'POST',
           headers: {'Content-Type': 'application/json;charset=utf-8'},
           body: JSON.stringify({
           'cId': cId,
           'sId' : sId,
-          'cityId' : cityId,
-          'pin' : pin,
-          'aId' : aId,
-          'img' : img
+          'cityId' : cityId
+         
           })
       }).then(function(res) {
           return res.json();
@@ -138,36 +126,12 @@ class UserProfile extends React.Component{
     };
    
     componentDidMount(){
-               
-        /*to get address type*/
-                return  fetch('http://localhost:8070/getAddressType', {    
-                    method: 'GET'
-                }).then(function(response) {
-
-                    console.log(response.headers.get('Content-Type'));
-                    console.log(response.headers.get('Date'));
-                    console.log(response.status);
-                    console.log(response.statusText);
-                    return response.json();
-                }).then( (json) => {
-                            this.setState({addType: json});
-                }).then(function(body) {
-                 console.log(body);
-                    //alert(eval(JSON.stringify(body)));
-                    //alert(JSON.parse(JSON.stringify(body)));
-                 return body;
-                  }).catch(function(ex) {
-                         console.log('parsing failed', ex);
-                  });
-    }       
-    
-    
-       componentWillMount(){          
+        
                 /*Getting country*/
-                return  fetch('http://localhost:8070/getCountry', {    
+                  fetch('http://localhost:8070/getCountry', {    
                     method: 'GET'
                 }).then(function(response) {
-
+        
                     console.log(response.headers.get('Content-Type'));
                     console.log(response.headers.get('Date'));
                     console.log(response.status);
@@ -182,10 +146,41 @@ class UserProfile extends React.Component{
                  return body;
                   }).catch(function(ex) {
                          console.log('parsing failed', ex);
-                  });
-
+                  }); 
+                
+                
+                
         
-    };  
+        
+                                    
+                                    
+                                    /*To get Session User*/
+                                      fetch('http://localhost:8070/getUserById', {    
+                                        method: 'GET'
+                                    }).then(function(response) {
+                    
+                                        console.log(response.headers.get('Content-Type'));
+                                        console.log(response.headers.get('Date'));
+                                        console.log(response.status);
+                                        console.log(response.statusText);
+                                        return response.json();
+                                    }).then( (json) => {
+                                                this.setState({user: json});
+                                    }).then(function(body) {
+                                     console.log(body);
+                                        //alert(eval(JSON.stringify(body)));
+                                        //alert(JSON.parse(JSON.stringify(body)));
+                                     return body;
+                                      }).catch(function(ex) {
+                                             console.log('parsing failed', ex);
+                                      });
+                                    
+                                    
+                                    
+    }       
+    
+    
+      
     render() {
     return (
             
@@ -208,7 +203,7 @@ class UserProfile extends React.Component{
                       <li><a href="#" data-toggle="modal" data-target="#myModal"><b>UserProfile</b></a></li> 
                 </ul>
                  <ul className="nav navbar-nav navbar-right">
-                   <li><a href="#"><span className="glyphicon glyphicon-user"></span><b> Welcome OstopD Team</b></a></li>
+                 
                    <li className="log"><a href="/"><span className="glyphicon glyphicon-log-in"></span><b>Logout&nbsp;</b></a></li>
                 </ul>
              </nav>
@@ -226,21 +221,21 @@ class UserProfile extends React.Component{
                               <h4 className="modal-title">Edit Profie</h4>
                             </div>
                             <div className="modal-body">
-                              <form onSubmit={this.getFilterData}   name="inputFieldForm" enctype="multipart/form-data" method="post">
+                              <form onSubmit={this.getFilterData}   name="inputFieldForm"  method="post">
                               
                               <div className="row">
                               
                               
                                           <div className="col-sm-6">
                                                 <label>Username:</label><br/>
-                                                    <input type="text" id="uname" ref="uname" name="uname" placeholder="Enter Username"/> 
+                                                    <input type="text" id="uname" ref="uname" name="uname" value={this.state.user.loginId} disabled="disabled"/> 
                                           </div>
                               </div> <br/>  
                                                     
                           <div className="row">
                                 <div className="col-sm-6">
                                         <label>EmailId:</label><br/>
-                                            <input type="text" id="email" ref="email" name="email" placeholder="Enter Email"/> 
+                                            <input type="text" id="email" ref="email" name="email" value={this.state.user.emailaddress} disabled="disabled"/> 
                                 </div>          
                           </div> <br/>
                               
@@ -289,43 +284,11 @@ class UserProfile extends React.Component{
                                               </div>
                                                           
                                           </div>   <br/>  
-                                  
-                                              
+                                                              
                                               
                                
                                                 
-                                                <div className="row">
-                                                <div className="col-sm-6">
-                                                <label>Pincode:</label><br/>
-                                                {this.state.city.length==0 &&
-                                                    <input type="text" id="pin" ref="pin" name="pin" placeholder="Enter pincode"/>}
-                                                {this.state.city.length!=0 &&
-                                                <input type="text" id="pin" ref="pin" name="pin" value={this.state.city[0].pincode}/>}
-                                                         
-                                                          
-                                                </div>
-                                         </div><br/>
-                                        
-                        <div className="row">                
-                              <div className="col-sm-6">
-                              <label>Address-type:</label><br/>
-                                       <select id="aId" ref="aId" name="aId">
-                                          <option value="0">---Select Type---</option>
-                                          {this.state.addType.map((aKey, i) => <AddressType key = {i} 
-                                          addType = {aKey} />)} 
-                                                                        
-                                       </select>   
-                                       
-                              </div>
-                        </div> <br/>    
-                                          
-                         
-                        <div className="row">       
-                               <div className="col-sm-6">
-                               <label>Image Upload:</label><br/>
-                                   <input type="file" ref="file1" name="file1" id="file1"  />
-                               </div>
-                        </div>  <br/>
+                                               
                                    
                              
                                <div className="row">       
@@ -380,26 +343,8 @@ class CityData extends React.Component {
     }
  }
 
-class Pincode extends React.Component {
-    render() {
-       return (
-                   <input type="text" id="pin" ref="pin" name="pin" value={this.props.city.pincode}/>
-                         
-        
-       );
-    }
- }
 
 
-class AddressType extends React.Component {
-    render() {
-       return (
-               <option value={this.props.addType.id} >{this.props.addType.address_type}</option>
-                         
-        
-       );
-    }
- }
 
 class Country extends React.Component {
     render() {

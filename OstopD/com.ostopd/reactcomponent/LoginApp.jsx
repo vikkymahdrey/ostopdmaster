@@ -8,49 +8,10 @@ class LoginApp extends React.Component{
         constructor(){
             super();
             this.state = { data: {} };
-            this.login = this.login.bind(this);
+           
         };
         
-     
-        /* onSubmit fetch call */
-        login(e){
-                e.preventDefault();
-                 
-                var uname=this.refs.uname.value;
-                var pass=this.refs.pass.value;
-                    console.log("uname: ");
-                    console.log("pass: ",pass);
-               
-               /*validating input fields*/     
-               if(uname==""){
-                    alert("Username should not empty - please try again!");
-               }else if (pass==""){
-                     alert("Password should not empty - please try again!");
-               }else{
-                    
-                        return  fetch('http://localhost:8070/login', {    
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json;charset=utf-8'},
-                            body: JSON.stringify({
-                            'uname': uname,
-                            'pass' : pass
-                            })
-                        }).then(function(res) {
-                            return res.json();
-                        }).then(function(json) {
-                           // alert(json);
-                           if(json!=0){
-                               
-                               window.open('http://localhost:8070/home/'+json, '_self');
-                                                         
-                            }else{
-                                alert("Invalid username or password,please try again!"); 
-                            }   
-                           
-                        });
-                }
-        };
-    
+         
         render() {
                     return (
                              

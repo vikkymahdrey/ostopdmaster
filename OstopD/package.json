@@ -4,7 +4,7 @@
   "description": "ostopd",
   "main": "app.js",
   "scripts": {
-    "start": "webpack-dev-server --hot"
+	  "start": "node app.js"
   },
   "author": "",
   "license": "ISC",

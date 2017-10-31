@@ -21,7 +21,7 @@ class PermAddress extends React.Component{
         var cityId=this.refs.cityId.value;
         var pin=this.refs.pin.value;
         var aId=this.refs.aId.value;
-        var img=this.refs.file1.value;
+        
      
         
       if(cId==0){
@@ -52,8 +52,8 @@ class PermAddress extends React.Component{
           'sId' : sId,
           'cityId' : cityId,
           'pin' : pin,
-          'aId' : aId,
-          'img' : img
+          'aId' : aId
+          
           })
       }).then(function(res){
           return res.json();
@@ -71,13 +71,14 @@ class PermAddress extends React.Component{
             e.preventDefault();
            
             var cId=this.refs.cId.value;
+            alert(cId);
           
                    
                     return  fetch('http://localhost:8070/getStateByCountryId', {    
                         method: 'POST',
                         headers: {'Content-Type': 'application/json;charset=utf-8'},
                         body: JSON.stringify({
-                        'cId': cId
+                        'cId': '1'
                         })
                     }).then(function(response){
                         console.log(response.headers.get('Content-Type'));
@@ -140,7 +141,7 @@ class PermAddress extends React.Component{
     componentDidMount(){
                
         /*to get address type*/
-                return  fetch('http://localhost:8070/getAddressType', {    
+               fetch('http://localhost:8070/getAddressType', {    
                     method: 'GET'
                 }).then(function(response) {
 
@@ -159,12 +160,10 @@ class PermAddress extends React.Component{
                   }).catch(function(ex) {
                          console.log('parsing failed', ex);
                   });
-    }       
-    
-    
-       componentWillMount(){          
+               
+             
                 /*Getting country*/
-                return  fetch('http://localhost:8070/getCountry', {    
+                fetch('http://localhost:8070/getCountry', {    
                     method: 'GET'
                 }).then(function(response) {
 
